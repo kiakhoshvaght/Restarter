@@ -1,6 +1,6 @@
 package com.kia.autoappstarter;
 
-import android.app.ActivityManager;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -10,6 +10,7 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.EditText;
 
 
 public class AppStarterService extends Service {
@@ -17,6 +18,9 @@ public class AppStarterService extends Service {
     private static final String TAG = AppStarterService.class.getName();
     static AppStarterService thisService;
     CountDownTimer countDownTimer;
+    static int timesToStart = 0;
+    static String packageToBeStarted;
+    static Activity activity;
 
     static void stopService(Context context){
         context.stopService(new Intent(context,AppStarterService.class));
@@ -48,8 +52,12 @@ public class AppStarterService extends Service {
             @Override
             public void onTick(long l) {
                 Log.i(TAG,"FUNCTION : onTick");
-                startTheApp();
-//                closeAppAfterTheTime();
+                if(timesToStart>0) {
+                    startTheApp();
+                } else {
+                    stopSelf();
+                }
+                timesToStart--;
             }
 
 
@@ -63,7 +71,7 @@ public class AppStarterService extends Service {
 
     private void startTheApp() {
         Log.i(TAG,"FUNCTION : startTheApp");
-        Intent launchIntent = getPackageManager().getLaunchIntentForPackage("ir.sakoo");
+        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageToBeStarted);
         launchIntent.putExtra("to-be-closed","true");
         if (launchIntent != null) {
             startActivity(launchIntent);

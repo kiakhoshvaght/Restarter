@@ -7,11 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
-    Button stopBtn;
+    Button stopBtn, startBtn;
+    EditText packageNameEt, numbersToStartEt;
     private ServiceConnection serviceConnection;
 
     @Override
@@ -21,9 +23,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         findViews();
         setOnClickListeners();
-        if(AppStarterService.thisService == null) {
-            startAppStarterService();
-        }
+        initializeUi();
+
+    }
+
+    private void initializeUi() {
+
     }
 
     private void setOnClickListeners() {
@@ -32,16 +37,27 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG,"FUNCTION : setOnClickListeners => on stopBtn click");
             stopService(new Intent(this,AppStarterService.class));
         });
+        startBtn.setOnClickListener(view -> {
+            Log.i(TAG,"FUNCTION : setOnClickListeners => on startBtn click");
+            startAppStarterService();
+        });
     }
 
     private void findViews() {
         Log.i(TAG,"FUNCTION : findViews");
         stopBtn = findViewById(R.id.stop_btn);
+        startBtn = findViewById(R.id.start_btn);
+        numbersToStartEt = findViewById(R.id.times_to_start_et);
+        packageNameEt = findViewById(R.id.package_name_et);
     }
 
     private void startAppStarterService() {
         Log.i(TAG,"FUNCTION : startAppStarterService");
-        startService(new Intent(this, AppStarterService.class));
+        if(AppStarterService.thisService == null) {
+            startService(new Intent(this, AppStarterService.class));
+        }
+        AppStarterService.timesToStart = Integer.parseInt(numbersToStartEt.getText().toString());
+        AppStarterService.packageToBeStarted = packageNameEt.getText().toString();
     }
 
     @Override
