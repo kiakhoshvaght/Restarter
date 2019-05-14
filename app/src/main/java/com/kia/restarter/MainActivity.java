@@ -1,4 +1,4 @@
-package com.kia.autoappstarter;
+package com.kia.restarter;
 
 
 import android.content.Intent;
@@ -8,6 +8,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.kia.restarter.api.ApiService;
+import com.kia.restarter.model.Schedule;
+
+import rx.Subscriber;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,14 +26,43 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG,"FUNCTION : onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         findViews();
         setOnClickListeners();
         initializeUi();
 
     }
 
-    private void initializeUi() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        testApi();
+    }
 
+    private void testApi() {
+        Log.i(TAG,"FUNCTION : testApi");
+        ApiService.getInstance().getSchedule("123").subscribe(new Subscriber<Schedule>() {
+            @Override
+            public void onCompleted() {
+                Log.i(TAG,"FUNCTION : testApi => onCompleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e(TAG,"FUNCTION : testApi => onError:" + e.toString());
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onNext(Schedule schedule) {
+                Log.i(TAG,"FUNCTION : testApi => onNext: " + schedule.getEvents().get(0).getPackageName() + " " + schedule.getEvents().get(0).getOpenCount());
+            }
+        });
+    }
+
+    private void initializeUi() {
+        Log.i(TAG,"FUNCTION : initializeUi");
+        stopBtn.setEnabled(false);
     }
 
     private void setOnClickListeners() {

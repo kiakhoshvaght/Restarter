@@ -1,4 +1,4 @@
-package com.kia.autoappstarter;
+package com.kia.restarter;
 
 import android.app.Activity;
 import android.app.Notification;
@@ -10,7 +10,6 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.EditText;
 
 
 public class AppStarterService extends Service {

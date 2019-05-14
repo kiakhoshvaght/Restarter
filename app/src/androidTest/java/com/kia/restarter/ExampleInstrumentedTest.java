@@ -1,4 +1,4 @@
-package com.kia.autoappstarter;
+package com.kia.restarter;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
