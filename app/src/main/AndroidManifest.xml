@@ -5,8 +5,8 @@
 
     <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-
-    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
 
     <application
         android:allowBackup="true"
@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
-        android:name="com.kia.RestarterApplication">
+        android:name=".RestarterApplication">
         <activity android:name="com.kia.restarter.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

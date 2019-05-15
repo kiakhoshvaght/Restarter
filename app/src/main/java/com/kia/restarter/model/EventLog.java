@@ -7,19 +7,25 @@ public class EventLog {
 
     @SerializedName("packageName")
     @Expose
-    private Object packageName;
+    private String packageName;
     @SerializedName("count")
     @Expose
     private Integer count;
     @SerializedName("clientId")
     @Expose
-    private Object clientId;
+    private String clientId;
 
-    public Object getPackageName() {
+    public EventLog(String packageName, int count, String deviceId){
+        this.packageName = packageName;
+        this.count = count;
+        this.clientId = deviceId;
+    }
+
+    public String getPackageName() {
         return packageName;
     }
 
-    public void setPackageName(Object packageName) {
+    public void setPackageName(String packageName) {
         this.packageName = packageName;
     }
 
@@ -35,7 +41,7 @@ public class EventLog {
         return clientId;
     }
 
-    public void setClientId(Object clientId) {
+    public void setClientId(String clientId) {
         this.clientId = clientId;
     }
 }

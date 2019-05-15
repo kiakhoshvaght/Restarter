@@ -5,16 +5,21 @@ import com.google.gson.annotations.SerializedName;
 public class Event {
     @SerializedName("packageName")
     @Expose
-    private Object packageName;
+    private String packageName;
     @SerializedName("openCount")
     @Expose
     private Integer openCount;
 
-    public Object getPackageName() {
+    public Event(String packageName, int openCount){
+        this.packageName = packageName;
+        this.openCount = openCount;
+    }
+
+    public String getPackageName() {
         return packageName;
     }
 
-    public void setPackageName(Object packageName) {
+    public void setPackageName(String packageName) {
         this.packageName = packageName;
     }
 

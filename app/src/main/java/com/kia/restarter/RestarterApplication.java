@@ -1,4 +1,4 @@
-package com.kia;
+package com.kia.restarter;
 
 import android.app.Application;
 
