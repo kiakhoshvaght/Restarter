@@ -140,22 +140,22 @@ public class AppStarterService extends Service {
     }
 
     private void getSchedule() {
-        Log.i(TAG, "FUNCTION : getSchedule");
+        Log.i(TAG, "FUNCTION : exit");
         ApiService.getInstance().getSchedule(deviceImei).subscribe(new Subscriber<Schedule>() {
             @Override
             public void onCompleted() {
-                Log.i(TAG, "FUNCTION : getSchedule => onCompleted");
+                Log.i(TAG, "FUNCTION : exit => onCompleted");
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG, "FUNCTION : getSchedule => onError:" + e.toString());
+                Log.e(TAG, "FUNCTION : exit => onError:" + e.toString());
                 e.printStackTrace();
             }
 
             @Override
             public void onNext(Schedule schedule) {
-                Log.i(TAG, "FUNCTION : getSchedule => onNext: " + schedule.getEvents().get(0).getPackageName() + " " + schedule.getEvents().get(0).getOpenCount());
+                Log.i(TAG, "FUNCTION : exit => onNext: " + schedule.getEvents().get(0).getPackageName() + " " + schedule.getEvents().get(0).getOpenCount());
                 AppStarterService.schedule = schedule;
                 if(schedule.getEvents().get(0).getOpenCount()>0){
                     hasLeftAny = true;
@@ -206,7 +206,6 @@ public class AppStarterService extends Service {
                             break;
                         case "stop":
                             isStopped = true;
-                            automaticMode = false;
                             timesToStart = 0;
                             hasLeftAny = false;
                             sendBroadcast(new Intent("set_count").putExtra("count", 0));

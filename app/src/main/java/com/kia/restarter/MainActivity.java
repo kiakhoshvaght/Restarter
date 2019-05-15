@@ -22,13 +22,15 @@ import com.kia.restarter.api.ApiService;
 import com.kia.restarter.model.Schedule;
 
 import rx.Subscriber;
+import rx.Subscription;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
-    Button stopBtn, startBtn, getSchedule;
+    Button stopBtn, startBtn, exit;
     EditText packageNameEt, numbersToStartEt;
     Switch automatic;
+    private Subscription broadcastSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,22 +63,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getSchedule() {
-        Log.i(TAG,"FUNCTION : getSchedule");
+        Log.i(TAG,"FUNCTION : exit");
         ApiService.getInstance().getSchedule("123").subscribe(new Subscriber<Schedule>() {
             @Override
             public void onCompleted() {
-                Log.i(TAG,"FUNCTION : getSchedule => onCompleted");
+                Log.i(TAG,"FUNCTION : exit => onCompleted");
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG,"FUNCTION : getSchedule => onError:" + e.toString());
+                Log.e(TAG,"FUNCTION : exit => onError:" + e.toString());
                 e.printStackTrace();
             }
 
             @Override
             public void onNext(Schedule schedule) {
-                Log.i(TAG,"FUNCTION : getSchedule => onNext: " + schedule.getEvents().get(0).getPackageName() + " " + schedule.getEvents().get(0).getOpenCount());
+                Log.i(TAG,"FUNCTION : exit => onNext: " + schedule.getEvents().get(0).getPackageName() + " " + schedule.getEvents().get(0).getOpenCount());
             }
         });
     }
@@ -88,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleBroadcasts() {
         Log.i(TAG, "FUNCTION : handleBroadcasts");
-        ContentObservable.fromBroadcast(this,getIntentFilter("set_count", "stopped", "package_name")).subscribe(new Subscriber<Intent>() {
+        broadcastSubscription = ContentObservable.fromBroadcast(this,getIntentFilter("set_count", "stopped", "package_name")).subscribe(new Subscriber<Intent>() {
             @Override
             public void onCompleted() {
                 Log.i(TAG, "FUNCTION : handleBroadcasts => onCompleted");
@@ -142,15 +144,15 @@ public class MainActivity extends AppCompatActivity {
                 goToManualState();
             }
         });
-        getSchedule.setOnClickListener(view -> {
-            Log.i(TAG,"FUNCTION : setOnClickListeners => on getSchedule click");
-            getSchedule();
+        exit.setOnClickListener(view -> {
+            Log.i(TAG,"FUNCTION : setOnClickListeners => on exit click");
+            AppStarterService.stopService(this);
+            finish();
         });
     }
 
     private void goToStopState() {
         Log.i(TAG,"FUNCTION : goToStopState");
-        AppStarterService.automaticMode = false;
         AppStarterService.isStopped = true;
         startBtn.setEnabled(true);
         stopBtn.setEnabled(false);
@@ -168,33 +170,22 @@ public class MainActivity extends AppCompatActivity {
         packageNameEt.setEnabled(false);
         numbersToStartEt.setEnabled(false);
         automatic.setEnabled(false);
-        AppStarterService.timesToStart = Integer.parseInt(numbersToStartEt.getText().toString());
-        AppStarterService.packageToBeStarted = packageNameEt.getText().toString();
+        if(!AppStarterService.automaticMode) {
+            Log.i(TAG,"FUNCTION : goToStartState => is automatic mode and going to put package name and count to service");
+            AppStarterService.timesToStart = Integer.parseInt(numbersToStartEt.getText().toString());
+            AppStarterService.packageToBeStarted = packageNameEt.getText().toString();
+        }
         sendBroadcast(new Intent(Action.START));
     }
 
     private void goToManualState() {
         Log.i(TAG,"FUNCTION : goToManualState");
         AppStarterService.automaticMode = false;
-        AppStarterService.isStopped = true;
-        startBtn.setEnabled(true);
-        stopBtn.setEnabled(false);
-        packageNameEt.setEnabled(true);
-        numbersToStartEt.setEnabled(true);
-        automatic.setEnabled(true);
-        sendBroadcast(new Intent(Action.START));
     }
 
     private void goToAutomaticState() {
         Log.i(TAG,"FUNCTION : goToAutomaticState");
         AppStarterService.automaticMode = true;
-        AppStarterService.isStopped = false;
-        startBtn.setEnabled(false);
-        stopBtn.setEnabled(true);
-        packageNameEt.setEnabled(false);
-        numbersToStartEt.setEnabled(false);
-        automatic.setEnabled(false);
-        sendBroadcast(new Intent(Action.START));
     }
 
     private void findViews() {
@@ -204,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         numbersToStartEt = findViewById(R.id.times_to_start_et);
         packageNameEt = findViewById(R.id.package_name_et);
         automatic = findViewById(R.id.manual_automatic_sb);
-        getSchedule = findViewById(R.id.get_schedule_btn);
+        exit = findViewById(R.id.exit_btn);
     }
 
     private void startAppStarterService() {
@@ -223,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.i(TAG,"FUNCTION : onDestroy");
+        unsubscribeIfNotNull(broadcastSubscription);
         super.onDestroy();
     }
 
@@ -232,5 +224,12 @@ public class MainActivity extends AppCompatActivity {
                 addAction(action);
             }
         }};
+    }
+
+    private void unsubscribeIfNotNull(Subscription subscription) {
+        Log.i(TAG, "FUNCTION : unsubscribeIfNotNull");
+        if (subscription != null) {
+            subscription.unsubscribe();
+        }
     }
 }
